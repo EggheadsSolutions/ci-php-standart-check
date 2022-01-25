@@ -1,0 +1,6 @@
+name: 'PHP Coding Standard'
+description: 'PHP Coding Standard'
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
