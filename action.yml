@@ -22,7 +22,7 @@ inputs:
     required: true
     default: 'composer, cs2pr'
 
-  app_local_php:
+  app-local-php:
     description: 'App Local PHP Config'
     required: true
     default: false
@@ -50,7 +50,7 @@ runs:
     - uses: actions/checkout@v2
 
     - name: Create App Local PHP Config
-      if: ${{ run-php-stan == true }}
+      if: ${{ app-local-php == true }}
       run: |
         echo "<?php
         return [];" > ./config/app_local.php
