@@ -50,7 +50,7 @@ runs:
     - uses: actions/checkout@v2
 
     - name: Create App Local PHP Config
-      if: ${{ inputs.app-local-php == "yes" }}
+      if: ${{ inputs.app-local-php == 'yes' }}
       run: |
         echo "<?php
         return [];" > ./config/app_local.php
