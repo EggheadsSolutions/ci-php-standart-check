@@ -27,22 +27,22 @@ inputs:
     required: true
     default: 'no'
 
-outputs:
-  install-dependencies:
-    description: "Install Dependencies"
-    value: ${{ steps.install-dependencies }}
+# outputs:
+#   install-dependencies:
+#     description: "Install Dependencies"
+#     value: ${{ steps.install-dependencies }}
 
-  run-php-code-sniffer:
-    description: "Run PHP CodeSniffer"
-    value: ${{ steps.run-php-code-sniffer }}
+#   run-php-code-sniffer:
+#     description: "Run PHP CodeSniffer"
+#     value: ${{ steps.run-php-code-sniffer }}
 
-  run-php-mess-detector:
-    description: "Run PHP MessDetector"
-    value: ${{ steps.run-php-mess-detector }}
+#   run-php-mess-detector:
+#     description: "Run PHP MessDetector"
+#     value: ${{ steps.run-php-mess-detector }}
 
-  run-php-stan:
-    description: "Run PHP Stan"
-    value: ${{ steps.run-php-stan }}
+#   run-php-stan:
+#     description: "Run PHP Stan"
+#     value: ${{ steps.run-php-stan }}
 
 runs:
   using: "composite"
