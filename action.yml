@@ -20,7 +20,7 @@ inputs:
   tools:
     description: 'Tools'
     required: true
-    default: 'composer, cs2pr'
+    default: 'cs2pr'
 
   app-local-php:
     description: 'App Local PHP Config'
