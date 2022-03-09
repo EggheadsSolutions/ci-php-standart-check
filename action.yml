@@ -92,3 +92,4 @@ runs:
     - id: run-php-stan
       run: vendor/bin/phpstan --configuration=phpstan.neon analyse --error-format=checkstyle --no-progress | vendor/bin/cs2pr
       shell: bash
+      
