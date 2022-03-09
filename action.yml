@@ -27,23 +27,6 @@ inputs:
     required: true
     default: 'no'
 
-# outputs:
-#   install-dependencies:
-#     description: "Install Dependencies"
-#     value: ${{ steps.install-dependencies }}
-
-#   run-php-code-sniffer:
-#     description: "Run PHP CodeSniffer"
-#     value: ${{ steps.run-php-code-sniffer }}
-
-#   run-php-mess-detector:
-#     description: "Run PHP MessDetector"
-#     value: ${{ steps.run-php-mess-detector }}
-
-#   run-php-stan:
-#     description: "Run PHP Stan"
-#     value: ${{ steps.run-php-stan }}
-
 runs:
   using: "composite"
   steps:
@@ -56,38 +39,46 @@ runs:
         return [];" > ./config/app_local.php
       shell: bash
 
-    - name: Setup cache environment
-      id: extcache
-      uses: shivammathur/cache-extensions@v1
-      with:
-        php-version: ${{ inputs.php-version }}
-        extensions: ${{ inputs.extensions }}
-        key: ${{ inputs.cache-key }}
+    # - name: Setup cache environment
+    #   id: extcache
+    #   uses: shivammathur/cache-extensions@v1
+    #   with:
+    #     php-version: ${{ inputs.php-version }}
+    #     extensions: ${{ inputs.extensions }}
+    #     key: ${{ inputs.cache-key }}
 
-    - name: Cache extensions
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.extcache.outputs.dir }}
-        key: ${{ steps.extcache.outputs.key }}
-        restore-keys: ${{ steps.extcache.outputs.key }}
+    # - name: Cache extensions
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: ${{ steps.extcache.outputs.dir }}
+    #     key: ${{ steps.extcache.outputs.key }}
+    #     restore-keys: ${{ steps.extcache.outputs.key }}
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ inputs.php-version }}
-        extensions: ${{ inputs.extensions }}
-        tools: ${{ inputs.tools }}
+    # - name: Setup PHP
+    #   uses: shivammathur/setup-php@v2
+    #   with:
+    #     php-version: ${{ inputs.php-version }}
+    #     extensions: ${{ inputs.extensions }}
+    #     tools: ${{ inputs.tools }}
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v2
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-php-
+    # - name: Cache Composer packages
+    #   id: composer-cache
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: vendor
+    #     key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+    #     restore-keys: ${{ runner.os }}-php-
 
-    - id: install-dependencies
-      run: composer install --no-progress --prefer-dist --optimize-autoloader
+    - name: Copy composer.phar
+      run: cp /home/actions-runner/composer.phar composer.phar
+      shell: bash
+
+    # - id: install-dependencies
+    #   run: composer install --no-progress --prefer-dist --optimize-autoloader
+    #   shell: bash
+
+    - name: Composer install
+      run: ./composer.phar install
       shell: bash
 
     - id: run-php-code-sniffer
