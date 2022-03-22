@@ -70,7 +70,7 @@ runs:
     #     restore-keys: ${{ runner.os }}-php-
 
     - name: Copy composer.phar
-      run: cp /home/actions-runner/composer.phar composer.phar
+      run: cp /home/actions/composer.phar composer.phar
       shell: bash
 
     # - id: install-dependencies
