@@ -20,37 +20,38 @@ inputs:
   tools:
     description: 'Tools'
     required: true
-    default: 'cs2pr'
+    default: 'composer, cs2pr'
 
   app-local-php:
     description: 'App Local PHP Config'
     required: true
     default: 'no'
 
-  composer-private-repo-key:
-    deacription: 'Use composer private repo'
-    required: true
-    default: 'no'
+  GITHUB_TOKEN:
+    description: 'token'
+    requierd: false
+    default: ''
+# outputs:
+#   install-dependencies:
+#     description: "Install Dependencies"
+#     value: ${{ steps.install-dependencies }}
+
+#   run-php-code-sniffer:
+#     description: "Run PHP CodeSniffer"
+#     value: ${{ steps.run-php-code-sniffer }}
+
+#   run-php-mess-detector:
+#     description: "Run PHP MessDetector"
+#     value: ${{ steps.run-php-mess-detector }}
+
+#   run-php-stan:
+#     description: "Run PHP Stan"
+#     value: ${{ steps.run-php-stan }}
 
 runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v2
-
-    - name: Import SSH Key
-      if: ${{ inputs.composer-private-repo-key != 'no' }}
-      run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/egg_repository_key
-          chmod 600 ~/.ssh/egg_repository_key
-          cat > ~/.ssh/config <<END
-          Host github.com
-            HostName github.com
-            User git
-            IdentityFile ~/.ssh/egg_repository_key
-            StrictHostKeyChecking no
-          END
-      shell: bash
 
     - name: Create App Local PHP Config
       if: ${{ inputs.app-local-php == 'yes' }}
@@ -59,50 +60,44 @@ runs:
         return [];" > ./config/app_local.php
       shell: bash
 
-    # - name: Setup cache environment
-    #   id: extcache
-    #   uses: shivammathur/cache-extensions@v1
-    #   with:
-    #     php-version: ${{ inputs.php-version }}
-    #     extensions: ${{ inputs.extensions }}
-    #     key: ${{ inputs.cache-key }}
+    - name: Setup cache environment
+      id: extcache
+      uses: shivammathur/cache-extensions@v1
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.extensions }}
+        key: ${{ inputs.cache-key }}
 
-    # - name: Cache extensions
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: ${{ steps.extcache.outputs.dir }}
-    #     key: ${{ steps.extcache.outputs.key }}
-    #     restore-keys: ${{ steps.extcache.outputs.key }}
+    - name: Cache extensions
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.extcache.outputs.dir }}
+        key: ${{ steps.extcache.outputs.key }}
+        restore-keys: ${{ steps.extcache.outputs.key }}
 
-    # - name: Setup PHP
-    #   uses: shivammathur/setup-php@v2
-    #   with:
-    #     php-version: ${{ inputs.php-version }}
-    #     extensions: ${{ inputs.extensions }}
-    #     tools: ${{ inputs.tools }}
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.extensions }}
+        tools: ${{ inputs.tools }}
+      env:
+        COMPOSER_TOKEN: ${{ inputs.GITHUB_TOKEN }}
 
-    # - name: Cache Composer packages
-    #   id: composer-cache
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: vendor
-    #     key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-    #     restore-keys: ${{ runner.os }}-php-
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-php-
 
-    - name: Copy composer.phar
-      run: cp /home/actions/composer.phar composer.phar
-      shell: bash
-
-    # - id: install-dependencies
-    #   run: composer install --no-progress --prefer-dist --optimize-autoloader
-    #   shell: bash
-
-    - name: Composer install
-      run: ./composer.phar install
+    - id: install-dependencies
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
       shell: bash
 
     - id: run-php-code-sniffer
-      run: vendor/bin/phpcs -p src/ tests/ --report=checkstyle -q | vendor/bin/cs2pr
+      run: vendor/bin/phpcs -p src/ tests/ --report=checkstyle -q | cs2pr
       shell: bash
 
     - id: run-php-mess-detector
@@ -110,6 +105,5 @@ runs:
       shell: bash
 
     - id: run-php-stan
-      run: vendor/bin/phpstan --configuration=phpstan.neon analyse --error-format=checkstyle --no-progress | vendor/bin/cs2pr
+      run: vendor/bin/phpstan --configuration=phpstan.neon analyse --error-format=checkstyle --no-progress | cs2pr
       shell: bash
-      
