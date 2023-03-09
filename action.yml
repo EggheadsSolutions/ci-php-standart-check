@@ -20,17 +20,12 @@ inputs:
   tools:
     description: 'Tools'
     required: true
-    default: 'composer, cs2pr'
+    default: 'cs2pr'
 
   app-local-php:
     description: 'App Local PHP Config'
     required: true
     default: 'no'
-
-  GITHUB_TOKEN:
-    description: 'token'
-    requierd: false
-    default: ''
 
 runs:
   using: "composite"
@@ -44,44 +39,50 @@ runs:
         return [];" > ./config/app_local.php
       shell: bash
 
-    - name: Setup cache environment
-      id: extcache
-      uses: shivammathur/cache-extensions@v1
-      with:
-        php-version: ${{ inputs.php-version }}
-        extensions: ${{ inputs.extensions }}
-        key: ${{ inputs.cache-key }}
+    # - name: Setup cache environment
+    #   id: extcache
+    #   uses: shivammathur/cache-extensions@v1
+    #   with:
+    #     php-version: ${{ inputs.php-version }}
+    #     extensions: ${{ inputs.extensions }}
+    #     key: ${{ inputs.cache-key }}
 
-    - name: Cache extensions
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.extcache.outputs.dir }}
-        key: ${{ steps.extcache.outputs.key }}
-        restore-keys: ${{ steps.extcache.outputs.key }}
+    # - name: Cache extensions
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: ${{ steps.extcache.outputs.dir }}
+    #     key: ${{ steps.extcache.outputs.key }}
+    #     restore-keys: ${{ steps.extcache.outputs.key }}
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ inputs.php-version }}
-        extensions: ${{ inputs.extensions }}
-        tools: ${{ inputs.tools }}
-      env:
-        COMPOSER_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    # - name: Setup PHP
+    #   uses: shivammathur/setup-php@v2
+    #   with:
+    #     php-version: ${{ inputs.php-version }}
+    #     extensions: ${{ inputs.extensions }}
+    #     tools: ${{ inputs.tools }}
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v2
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-php-
+    # - name: Cache Composer packages
+    #   id: composer-cache
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: vendor
+    #     key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+    #     restore-keys: ${{ runner.os }}-php-
 
-    - id: install-dependencies
-      run: composer install --no-progress --prefer-dist --optimize-autoloader
+    - name: Copy composer.phar
+      run: cp /home/actions/composer.phar composer.phar
+      shell: bash
+
+    # - id: install-dependencies
+    #   run: composer install --no-progress --prefer-dist --optimize-autoloader
+    #   shell: bash
+
+    - name: Composer install
+      run: ./composer.phar install
       shell: bash
 
     - id: run-php-code-sniffer
-      run: vendor/bin/phpcs -p src/ tests/ --report=checkstyle -q | cs2pr
+      run: vendor/bin/phpcs -p src/ tests/ --report=checkstyle -q | vendor/bin/cs2pr
       shell: bash
 
     - id: run-php-mess-detector
@@ -89,5 +90,5 @@ runs:
       shell: bash
 
     - id: run-php-stan
-      run: vendor/bin/phpstan --configuration=phpstan.neon analyse --error-format=checkstyle --no-progress | cs2pr
+      run: vendor/bin/phpstan --configuration=phpstan.neon analyse --error-format=checkstyle --no-progress | vendor/bin/cs2pr
       shell: bash
