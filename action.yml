@@ -30,7 +30,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Create App Local PHP Config
       if: ${{ inputs.app-local-php == 'yes' }}
@@ -39,43 +39,10 @@ runs:
         return [];" > ./config/app_local.php
       shell: bash
 
-    # - name: Setup cache environment
-    #   id: extcache
-    #   uses: shivammathur/cache-extensions@v1
-    #   with:
-    #     php-version: ${{ inputs.php-version }}
-    #     extensions: ${{ inputs.extensions }}
-    #     key: ${{ inputs.cache-key }}
-
-    # - name: Cache extensions
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: ${{ steps.extcache.outputs.dir }}
-    #     key: ${{ steps.extcache.outputs.key }}
-    #     restore-keys: ${{ steps.extcache.outputs.key }}
-
-    # - name: Setup PHP
-    #   uses: shivammathur/setup-php@v2
-    #   with:
-    #     php-version: ${{ inputs.php-version }}
-    #     extensions: ${{ inputs.extensions }}
-    #     tools: ${{ inputs.tools }}
-
-    # - name: Cache Composer packages
-    #   id: composer-cache
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: vendor
-    #     key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-    #     restore-keys: ${{ runner.os }}-php-
-
     - name: Copy composer.phar
       run: cp /home/actions/composer.phar composer.phar
       shell: bash
 
-    # - id: install-dependencies
-    #   run: composer install --no-progress --prefer-dist --optimize-autoloader
-    #   shell: bash
 
     - name: Composer install
       run: ./composer.phar install
