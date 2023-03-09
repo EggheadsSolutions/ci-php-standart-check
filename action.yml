@@ -31,27 +31,11 @@ inputs:
     description: 'token'
     requierd: false
     default: ''
-# outputs:
-#   install-dependencies:
-#     description: "Install Dependencies"
-#     value: ${{ steps.install-dependencies }}
-
-#   run-php-code-sniffer:
-#     description: "Run PHP CodeSniffer"
-#     value: ${{ steps.run-php-code-sniffer }}
-
-#   run-php-mess-detector:
-#     description: "Run PHP MessDetector"
-#     value: ${{ steps.run-php-mess-detector }}
-
-#   run-php-stan:
-#     description: "Run PHP Stan"
-#     value: ${{ steps.run-php-stan }}
 
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Create App Local PHP Config
       if: ${{ inputs.app-local-php == 'yes' }}
